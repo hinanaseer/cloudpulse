@@ -1,0 +1,14 @@
+# Dedicated namespace for CloudPulse with Pod Security Standards enforced
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudpulse
+  labels:
+    app.kubernetes.io/name: cloudpulse
+    app.kubernetes.io/part-of: cloudpulse-platform
+    # Enforce the strictest Pod Security Standard: pods must be non-root, no privilege escalation, etc.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    # Also show warnings and audit logs for any violations
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

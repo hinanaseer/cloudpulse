@@ -1,0 +1,14 @@
+# Non-secret application config, injected into pods as environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudpulse-config
+  namespace: cloudpulse
+  labels:
+    app.kubernetes.io/name: cloudpulse
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: cloudpulse-platform
+data:
+  APP_NAME: "CloudPulse"
+  APP_VERSION: "v1.0.1"
+  APP_ENV: "kubernetes"

@@ -1,0 +1,14 @@
+# Python virtual environment and cache
+venv/
+__pycache__/
+*.pyc
+
+# Terraform local state and cache (never commit state files)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Editor and OS files
+.vscode/
+.DS_Store

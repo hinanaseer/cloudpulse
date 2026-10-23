@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ info.app }} · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    /* Design tokens */
+    :root {
+      --bg: #0a0e1a;
+      --card: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8ecf5;
+      --muted: #8b93a7;
+      --blue: #4285f4;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbc04;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 24px;
+      /* Soft Google-colored glow in the background */
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(66, 133, 244, 0.18), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(52, 211, 153, 0.12), transparent 40%),
+        radial-gradient(circle at 50% 100%, rgba(251, 188, 4, 0.08), transparent 45%);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      display: grid; place-items: center; font-size: 24px;
+      box-shadow: 0 8px 30px rgba(66, 133, 244, 0.4);
+    }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 2px; }
+    .badges { display: flex; gap: 8px; }
+    .badge {
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge.env { color: var(--yellow); border-color: rgba(251, 188, 4, 0.3); }
+    .badge.ver { color: var(--blue); border-color: rgba(66, 133, 244, 0.3); }
+
+    /* Glass card */
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 24px; backdrop-filter: blur(12px);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: rgba(66, 133, 244, 0.35); }
+
+    /* Status hero */
+    .hero { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; }
+    .pulse { position: relative; width: 16px; height: 16px; border-radius: 50%; background: var(--green); }
+    .pulse::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      background: var(--green); animation: ping 1.8s infinite;
+    }
+    @keyframes ping { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2.8); opacity: 0; } }
+    .hero h2 { font-size: 20px; font-weight: 700; }
+    .hero p { color: var(--muted); font-size: 14px; }
+
+    /* Stat grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .value { font-family: "JetBrains Mono", monospace; font-size: 18px; word-break: break-all; }
+    .value.big { font-size: 28px; color: var(--green); }
+
+    /* Two-column section */
+    .split { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 800px) { .split { grid-template-columns: 1fr; } }
+    .card h3 { font-size: 16px; margin-bottom: 16px; }
+
+    /* Endpoint health rows */
+    .ep { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .ep:last-child { border-bottom: none; }
+    .ep code { font-family: "JetBrains Mono", monospace; font-size: 14px; }
+    .ep-status { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+    .dot.ok { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .dot.fail { background: var(--red); box-shadow: 0 0 10px var(--red); }
+
+    /* Tech stack chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 500;
+      background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(66, 133, 244, 0.2);
+    }
+
+    footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 32px; }
+    footer strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="brand">
+        <div class="logo">⚡</div>
+        <div>
+          <h1>{{ info.app }}</h1>
+          <div class="subtitle">Production-grade Kubernetes platform on Google Cloud</div>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge env">{{ info.environment }}</span>
+        <span class="badge ver">{{ info.version }}</span>
+      </div>
+    </header>
+
+    <div class="card hero">
+      <div class="pulse"></div>
+      <div>
+        <h2 id="status-title">All Systems Operational</h2>
+        <p id="last-update">Live monitoring active</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Pod / Hostname</div>
+        <div class="value" id="hostname">{{ info.hostname }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Pod IP</div>
+        <div class="value" id="pod_ip">{{ info.pod_ip }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Uptime</div>
+        <div class="value big" id="uptime" data-seconds="{{ info.uptime_seconds }}">--:--:--</div>
+      </div>
+      <div class="card">
+        <div class="label">Server Time</div>
+        <div class="value" id="server_time">{{ info.server_time }}</div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h3>🩺 Endpoint Health</h3>
+        <div id="endpoints"></div>
+      </div>
+      <div class="card">
+        <h3>🛠️ Tech Stack</h3>
+        <div class="chips">
+          <span class="chip">🐍 Python {{ info.python }}</span>
+          <span class="chip">🐳 Docker</span>
+          <span class="chip">☸️ Kubernetes</span>
+          <span class="chip">⛵ Helm</span>
+          <span class="chip">🔥 Prometheus</span>
+          <span class="chip">📊 Grafana</span>
+          <span class="chip">🏗️ Terraform</span>
+          <span class="chip">🔄 GitHub Actions</span>
+          <span class="chip">🛡️ Trivy</span>
+          <span class="chip">☁️ Google Cloud</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Built with ❤️ by <strong>Hina Naseer</strong> · Powered by Google Cloud Shell
+    </footer>
+  </div>
+
+  <script>
+    // Endpoints to health-check from the browser
+    const ENDPOINTS = ["/health", "/ready", "/metrics", "/api/info"];
+    const uptimeEl = document.getElementById("uptime");
+    let uptime = Number(uptimeEl.dataset.seconds);
+
+    // Format seconds as "Xd HH:MM:SS"
+    function formatUptime(s) {
+      const d = Math.floor(s / 86400);
+      const h = String(Math.floor((s % 86400) / 3600)).padStart(2, "0");
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+      const sec = String(s % 60).padStart(2, "0");
+      return (d ? d + "d " : "") + h + ":" + m + ":" + sec;
+    }
+
+    // Tick the uptime counter every second
+    function tick() {
+      uptimeEl.textContent = formatUptime(uptime);
+      uptime++;
+    }
+
+    // Check each endpoint and show status + response time
+    async function checkEndpoints() {
+      const container = document.getElementById("endpoints");
+      let allOk = true;
+      const rows = await Promise.all(ENDPOINTS.map(async (ep) => {
+        const start = performance.now();
+        try {
+          const res = await fetch(ep, { cache: "no-store" });
+          const ms = Math.round(performance.now() - start);
+          if (!res.ok) allOk = false;
+          return { ep, ok: res.ok, text: res.status + " · " + ms + " ms" };
+        } catch (e) {
+          allOk = false;
+          return { ep, ok: false, text: "unreachable" };
+        }
+      }));
+      container.innerHTML = rows.map(r =>
+        '<div class="ep"><code>' + r.ep + '</code>' +
+        '<span class="ep-status"><span class="dot ' + (r.ok ? "ok" : "fail") + '"></span>' + r.text + '</span></div>'
+      ).join("");
+      document.getElementById("status-title").textContent =
+        allOk ? "All Systems Operational" : "Degraded Performance";
+    }
+
+    // Refresh live data from the API
+    async function refreshInfo() {
+      try {
+        const data = await (await fetch("/api/info", { cache: "no-store" })).json();
+        document.getElementById("hostname").textContent = data.hostname;
+        document.getElementById("pod_ip").textContent = data.pod_ip;
+        document.getElementById("server_time").textContent = data.server_time;
+        uptime = data.uptime_seconds;
+        document.getElementById("last-update").textContent =
+          "Last updated: " + new Date().toLocaleTimeString();
+      } catch (e) {
+        document.getElementById("last-update").textContent = "Connection lost, retrying...";
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+    checkEndpoints();
+    refreshInfo();
+    setInterval(() => { checkEndpoints(); refreshInfo(); }, 5000);
+  </script>
+</body>
+</html>
