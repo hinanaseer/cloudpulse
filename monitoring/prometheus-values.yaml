@@ -1,0 +1,24 @@
+# Lightweight Prometheus for Cloud Shell: server only, extras disabled
+alertmanager:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+
+server:
+  # Keep only 2 days of data and use in-memory storage (no persistent disk)
+  retention: 2d
+  persistentVolume:
+    enabled: false
+  global:
+    scrape_interval: 15s
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
