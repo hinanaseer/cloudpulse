@@ -5,10 +5,10 @@ description: Production-grade Kubernetes platform with full DevOps lifecycle
 type: application
 
 # Chart version: bump this when the chart templates change
-version: 0.1.0
+version: 0.1.1
 
 # App version: the CloudPulse image version this chart deploys
-appVersion: "v1.0.1"
+appVersion: "v1.0.2"
 
 keywords:
   - kubernetes
