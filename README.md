@@ -8,7 +8,7 @@
 ![Trivy](https://img.shields.io/badge/Trivy-0%20Misconfigurations-1904DA?logo=aqua&logoColor=white)
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Cloud%20Shell-4285F4?logo=googlecloud&logoColor=white)
 
-![CloudPulse Dashboard](docs/images/dashboard.png)
+![CloudPulse Dashboard](docs/images/dashboard-v2.png)
 
 ---
 
