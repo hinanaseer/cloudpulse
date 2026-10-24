@@ -1,0 +1,92 @@
+# Lightweight Grafana with Prometheus datasource and CloudPulse dashboard provisioned as code
+
+# Admin password is auto-generated and stored in a K8s Secret (never committed to Git)
+persistence:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+# Auto-connect Prometheus as the default datasource
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        url: http://prometheus-server.monitoring.svc.cluster.local
+        access: proxy
+        isDefault: true
+
+# Tell Grafana where to load dashboards from
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: default
+        folder: CloudPulse
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+# CloudPulse dashboard defined as JSON
+dashboards:
+  default:
+    cloudpulse:
+      json: |
+        {
+          "title": "CloudPulse Overview",
+          "uid": "cloudpulse",
+          "schemaVersion": 39,
+          "refresh": "10s",
+          "time": { "from": "now-30m", "to": "now" },
+          "panels": [
+            {
+              "type": "stat", "title": "Total Requests / sec",
+              "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2 } },
+              "targets": [ { "expr": "sum(rate(cloudpulse_requests_total[1m]))" } ]
+            },
+            {
+              "type": "stat", "title": "Running Pods",
+              "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "targets": [ { "expr": "count(up{app_kubernetes_io_name=\"cloudpulse\"} == 1)" } ]
+            },
+            {
+              "type": "stat", "title": "Errors / sec (5xx)",
+              "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2 } },
+              "targets": [ { "expr": "sum(rate(cloudpulse_requests_total{status=~\"5..\"}[5m])) or vector(0)" } ]
+            },
+            {
+              "type": "stat", "title": "p95 Latency",
+              "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "fieldConfig": { "defaults": { "unit": "s", "decimals": 3 } },
+              "targets": [ { "expr": "histogram_quantile(0.95, sum by (le) (rate(cloudpulse_request_latency_seconds_bucket[5m])))" } ]
+            },
+            {
+              "type": "timeseries", "title": "Requests / sec by Endpoint",
+              "gridPos": { "x": 0, "y": 4, "w": 12, "h": 9 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "fieldConfig": { "defaults": { "unit": "reqps" } },
+              "targets": [ { "expr": "sum by (endpoint) (rate(cloudpulse_requests_total[1m]))", "legendFormat": "{{endpoint}}" } ]
+            },
+            {
+              "type": "timeseries", "title": "p95 Latency by Endpoint",
+              "gridPos": { "x": 12, "y": 4, "w": 12, "h": 9 },
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "fieldConfig": { "defaults": { "unit": "s" } },
+              "targets": [ { "expr": "histogram_quantile(0.95, sum by (le, endpoint) (rate(cloudpulse_request_latency_seconds_bucket[5m])))", "legendFormat": "{{endpoint}}" } ]
+            }
+          ]
+        }
