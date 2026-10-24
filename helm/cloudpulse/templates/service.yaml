@@ -1,0 +1,16 @@
+# Stable endpoint that load-balances traffic across CloudPulse pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cloudpulse.fullname" . }}
+  labels:
+    {{- include "cloudpulse.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "cloudpulse.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

@@ -100,7 +100,7 @@ kubectl get hpa -n cloudpulse -w
 - [x] Flask app with metrics and live dashboard
 - [x] Secure Docker image + Trivy scanning
 - [x] Kubernetes manifests with HPA and Pod Security Standards
-- [ ] Helm chart
+- [x] Helm chart
 - [ ] Prometheus + Grafana monitoring
 - [ ] GitHub Actions CI/CD (test, build, scan, push to GHCR)
 - [ ] Terraform for GKE

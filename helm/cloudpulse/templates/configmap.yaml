@@ -1,0 +1,12 @@
+# App configuration rendered from values.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cloudpulse.fullname" . }}-config
+  labels:
+    {{- include "cloudpulse.labels" . | nindent 4 }}
+data:
+  APP_NAME: {{ .Values.config.appName | quote }}
+  APP_ENV: {{ .Values.config.appEnv | quote }}
+  # Version always matches the deployed image tag
+  APP_VERSION: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
